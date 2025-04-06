@@ -10,40 +10,61 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const signUpSchema = z
+  .object({
+    email: z.string().email("Email invalide"),
+    name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+    password: z
+      .string()
+      .min(8, "Le mot de passe doit contenir au moins 8 caractères")
+      .regex(
+        /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/,
+        "Le mot de passe doit contenir au moins une lettre et un chiffre"
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirmPassword"],
+  });
+
+type SignUpSchema = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
-      return;
-    }
+  const form = useForm<SignUpSchema>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      email: "",
+      name: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
+  const handleSubmit = async (data: SignUpSchema) => {
     setLoading(true);
-    setError(null);
 
     try {
       await authClient.signUp.email({
-        email,
-        password,
-        name,
+        email: data.email,
+        password: data.password,
+        name: data.name,
       });
-      router.push(
-        "/auth/signin?message=Compte créé avec succès ! Vous pouvez maintenant vous connecter."
-      );
+      toast.success("Compte créé avec succès !");
+      router.push("/auth/signin");
     } catch (err) {
-      setError("Une erreur s'est produite lors de l'inscription.");
+      toast.error("Une erreur s'est produite lors de l'inscription.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -61,59 +82,68 @@ export default function SignUp() {
         </CardHeader>
 
         <CardContent>
-          {error && (
-            <div className="mb-6 p-4 text-sm text-red-500 bg-red-100 dark:bg-red-900/30 rounded-md">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-6"
+          >
             <div className="space-y-2">
               <Label htmlFor="name">Nom</Label>
               <Input
+                {...form.register("name")}
                 id="name"
                 type="text"
                 placeholder="Votre nom"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
               />
+              {form.formState.errors.name && (
+                <p className="text-sm text-red-500">
+                  {form.formState.errors.name.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
+                {...form.register("email")}
                 id="email"
                 type="email"
                 placeholder="votre@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
               />
+              {form.formState.errors.email && (
+                <p className="text-sm text-red-500">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password">Mot de passe</Label>
               <Input
+                {...form.register("password")}
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
               />
+              {form.formState.errors.password && (
+                <p className="text-sm text-red-500">
+                  {form.formState.errors.password.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
               <Input
+                {...form.register("confirmPassword")}
                 id="confirmPassword"
                 type="password"
                 placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
               />
+              {form.formState.errors.confirmPassword && (
+                <p className="text-sm text-red-500">
+                  {form.formState.errors.confirmPassword.message}
+                </p>
+              )}
             </div>
 
             <Button className="w-full" type="submit" disabled={loading}>

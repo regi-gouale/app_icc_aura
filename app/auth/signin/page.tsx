@@ -10,38 +10,55 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const signInSchema = z.object({
+  email: z.string().email("Email invalide"),
+  password: z.string().min(1, "Le mot de passe est requis"),
+});
+
+type SignInSchema = z.infer<typeof signInSchema>;
 
 export default function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<SignInSchema>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const handleSubmit = async (data: SignInSchema) => {
     setLoading(true);
     setError(null);
 
     try {
       await authClient.signIn.email({
-        email,
-        password,
+        email: data.email,
+        password: data.password,
       });
+      toast.success("Connexion réussie !");
       router.push("/");
     } catch (err) {
-      setError("Échec de connexion. Veuillez vérifier vos identifiants.");
+      toast.error("Email ou mot de passe incorrect");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleMagicLink = async () => {
+    const email = form.getValues("email");
     if (!email) {
       setError("Veuillez entrer votre email pour recevoir un lien magique.");
       return;
@@ -79,29 +96,38 @@ export default function SignIn() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-6"
+          >
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
+                {...form.register("email")}
                 id="email"
                 type="email"
                 placeholder="votre@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
               />
+              {form.formState.errors.email && (
+                <p className="text-sm text-red-500">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password">Mot de passe</Label>
               <Input
+                {...form.register("password")}
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
               />
+              {form.formState.errors.password && (
+                <p className="text-sm text-red-500">
+                  {form.formState.errors.password.message}
+                </p>
+              )}
             </div>
 
             <div className="flex items-center justify-between">
