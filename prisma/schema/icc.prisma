@@ -1,0 +1,138 @@
+model Soul {
+  id              String            @id
+  firstName       String
+  lastName        String
+  gender          String?
+  ageRange        String?
+  maritalStatus   String?
+  dateOfBirth     DateTime?
+  phone           String?
+  email           String?
+  address         String?
+  city            String?
+  postalCode      String?
+  profession      String?
+  description     String?
+  image           String?
+  metadata        String?
+  createdAt       DateTime
+  updatedAt       DateTime
+  EventInvitation EventInvitation[]
+  Prayer          Prayer[]
+  SoulIntegration SoulIntegration[]
+  SoulFeedback    SoulFeedback[]
+
+  ministryId String?
+
+  departmentId String?
+  Ministry     Ministry[]
+  Department   Department[]
+
+  @@map("soul")
+}
+
+model Event {
+  id                String            @id
+  name              String
+  description       String?
+  startDate         DateTime
+  endDate           DateTime?
+  location          String?
+  image             String?
+  metadata          String?
+  numberOfAttendees Int?
+  numberOfPrayers   Int?
+  createdAt         DateTime
+  updatedAt         DateTime
+  EventInvitation   EventInvitation[]
+  Prayer            Prayer[]
+
+  @@map("event")
+}
+
+model EventInvitation {
+  id        String  @id
+  eventId   String
+  event     Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  type      String
+  soul      Soul?   @relation(fields: [soulId], references: [id])
+  soulId    String?
+  inviterId String?
+
+  @@map("event_invitation")
+}
+
+model Prayer {
+  id                    String    @id
+  eventId               String
+  event                 Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  soulId                String
+  soul                  Soul      @relation(fields: [soulId], references: [id], onDelete: Cascade)
+  prayerDate            DateTime
+  prayerTime            DateTime?
+  createdAt             DateTime
+  updatedAt             DateTime
+  prayerType            String?
+  desireToBeAccompanied Boolean?
+
+  @@map("prayer")
+}
+
+model SoulIntegration {
+  id          String   @id
+  soulId      String
+  soul        Soul     @relation(fields: [soulId], references: [id], onDelete: Cascade)
+  integration String
+  wantToJoin  Boolean
+  waitingList String?
+  metadata    String?
+  createdAt   DateTime
+  updatedAt   DateTime
+  adviserId   String?
+
+  @@map("soul_integration")
+}
+
+model SoulFeedback {
+  id        String   @id
+  soulId    String
+  soul      Soul     @relation(fields: [soulId], references: [id], onDelete: Cascade)
+  feedback  String
+  createdAt DateTime
+  updatedAt DateTime
+
+  @@map("soul_feedback")
+}
+
+model Ministry {
+  id            String       @id
+  name          String
+  description   String?
+  image         String?
+  metadata      String?
+  departments   Department[]
+  membersId     String[]
+  createdAt     DateTime
+  updatedAt     DateTime
+  responsible   Soul?        @relation(fields: [responsibleId], references: [id])
+  responsibleId String?
+
+  @@map("ministry")
+}
+
+model Department {
+  id            String    @id
+  name          String
+  description   String?
+  image         String?
+  metadata      String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  Ministry      Ministry? @relation(fields: [ministryId], references: [id])
+  ministryId    String?
+  members       String[]
+  reponsible    Soul?     @relation(fields: [responsibleId], references: [id])
+  responsibleId String?
+
+  @@map("department")
+}
