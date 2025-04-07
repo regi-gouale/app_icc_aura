@@ -17,8 +17,10 @@ import {
   signInWithGitHub,
 } from "@/lib/actions/auth.action";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
+import { authClient } from "../auth-client";
 
 const initialState = {
   success: false,
@@ -27,6 +29,17 @@ const initialState = {
 };
 
 export function SignInForm() {
+  const {
+    data: session,
+    isPending, //loading state
+    error, //error object
+    refetch, //refetch the session
+  } = authClient.useSession();
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
   const [state, formAction] = useActionState(signIn, initialState);
   const [magicLinkState, magicLinkAction] = useActionState(
     sendMagicLink,
@@ -86,28 +99,27 @@ export function SignInForm() {
           </div>
 
           <div className="flex items-center justify-between">
-            <form action={magicLinkAction}>
-              <input type="hidden" name="email" id="magic-email" />
-              <Button
-                variant="link"
-                className="px-0"
-                type="submit"
-                onClick={(e) => {
-                  // Copier la valeur de l'email du formulaire principal
-                  const emailInput = document.getElementById(
-                    "email"
-                  ) as HTMLInputElement;
-                  const magicEmailInput = document.getElementById(
-                    "magic-email"
-                  ) as HTMLInputElement;
-                  if (emailInput && magicEmailInput) {
-                    magicEmailInput.value = emailInput.value;
-                  }
-                }}
-              >
-                Se connecter avec un lien magique
-              </Button>
-            </form>
+            <input type="hidden" name="email" id="magic-email" />
+            <Button
+              variant="link"
+              className="px-0"
+              type="submit"
+              onClick={(e) => {
+                // Copier la valeur de l'email du formulaire principal
+                const emailInput = document.getElementById(
+                  "email"
+                ) as HTMLInputElement;
+                const magicEmailInput = document.getElementById(
+                  "magic-email"
+                ) as HTMLInputElement;
+                if (emailInput && magicEmailInput) {
+                  magicEmailInput.value = emailInput.value;
+                }
+              }}
+            >
+              Se connecter avec un lien magique
+            </Button>
+
             <Button variant="link" className="px-0" type="button" asChild>
               <Link href="/auth/forgot-password">Mot de passe oublié ?</Link>
             </Button>

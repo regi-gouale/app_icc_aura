@@ -2,6 +2,8 @@
 
 import { auth } from "@/lib/auth";
 import { authClient } from "@/lib/auth-client";
+import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -83,20 +85,31 @@ export async function signIn(
   }
 
   try {
-    await auth.api.signInEmail({
+    const response = await auth.api.signInEmail({
       body: {
         email: validatedFields.data.email,
         password: validatedFields.data.password,
-        redirectTo: "/dashboard",
+        // redirectTo: "/dashboard",
       },
+      asResponse: true,
     });
-    redirect("/dashboard");
+    if (response.ok) {
+      revalidatePath("/auth/signin");
+      redirect("/dashboard");
+    } else {
+      return {
+        success: false,
+        error: response.statusText,
+      };
+    }
+    // redirect("/dashboard");
 
     // redirect("/dashboard");
 
     // Ce code ne sera jamais atteint en raison du redirect
     return { success: true };
   } catch (error) {
+    console.error("Erreur lors de la connexion:", error);
     return {
       success: false,
       error: "Échec de connexion. Veuillez vérifier vos identifiants.",
@@ -126,7 +139,7 @@ export async function sendMagicLink(
         email,
         callbackURL: "/dashboard",
       },
-      headers: [],
+      headers: await headers(),
     });
 
     return {
@@ -134,6 +147,7 @@ export async function sendMagicLink(
       message: "Un lien de connexion a été envoyé à votre adresse email.",
     };
   } catch (error) {
+    console.error("Erreur lors de l'envoi du lien magique:", error);
     return {
       success: false,
       error: "Une erreur s'est produite lors de l'envoi du lien magique.",
@@ -167,20 +181,28 @@ export async function signUp(
   }
 
   try {
-    await auth.api.signUpEmail({
+    const response = await auth.api.signUpEmail({
       body: {
         email: validatedFields.data.email,
         password: validatedFields.data.password,
         name: validatedFields.data.name,
         redirectTo: "/dashboard",
       },
+      asResponse: true,
     });
 
-    redirect("/dashboard");
+    if (response.ok) {
+      redirect("/dashboard");
+    } else {
+      return {
+        success: false,
+        error: response.statusText,
+      };
+    }
 
     // Ce code ne sera jamais atteint en raison du redirect
-    // return { success: true };
   } catch (error) {
+    console.error("Erreur lors de l'inscription:", error);
     return {
       success: false,
       error: "Une erreur s'est produite lors de l'inscription.",
@@ -230,6 +252,7 @@ export async function resetPassword(
     // Ce code ne sera jamais atteint en raison du redirect
     // return { success: true };
   } catch (error) {
+    console.error("Erreur lors de la réinitialisation du mot de passe:", error);
     return {
       success: false,
       error:
@@ -268,6 +291,10 @@ export async function forgotPassword(
 
     return { success: true };
   } catch (error) {
+    console.error(
+      "Erreur lors de la demande de réinitialisation du mot de passe:",
+      error
+    );
     return {
       success: false,
       error: "Une erreur s'est produite. Veuillez réessayer plus tard.",
@@ -289,9 +316,25 @@ export async function signInWithGitHub() {
       message: "Redirection vers GitHub...";
     }>;
   } catch (error) {
-    return Promise<{
-      success: false;
-      error: "Une erreur s'est produite lors de la connexion avec GitHub.";
-    }>;
+    console.error("Erreur lors de la connexion avec GitHub:", error);
+    return {
+      success: false,
+      error: "Une erreur s'est produite lors de la connexion avec GitHub.",
+    };
+  }
+}
+
+/**
+ * Server action pour la déconnexion
+ */
+export async function signOut(): Promise<void> {
+  try {
+    await auth.api.signOut({
+      headers: await headers(),
+    });
+    redirect("/auth/signin");
+  } catch (error) {
+    console.error("Erreur lors de la déconnexion:", error);
+    throw error;
   }
 }

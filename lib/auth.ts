@@ -1,8 +1,9 @@
+import { sendEmail } from "@/lib/emails/email-service";
 import prisma from "@/lib/prisma";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { nextCookies } from "better-auth/next-js";
 import { magicLink } from "better-auth/plugins/magic-link";
-import { sendEmail } from "./emails/email-service";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -47,5 +48,6 @@ export const auth = betterAuth({
       // Durée de validité du lien en minutes (par défaut: 10)
       expiresIn: 15,
     }),
+    nextCookies(),
   ],
 });
