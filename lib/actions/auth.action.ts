@@ -187,11 +187,14 @@ export async function signUp(
         password: validatedFields.data.password,
         name: validatedFields.data.name,
         redirectTo: "/dashboard",
+        role: "authenticated",
       },
+      // role: "authenticated",
       asResponse: true,
     });
 
     if (response.ok) {
+      revalidatePath("/auth/signup");
       redirect("/dashboard");
     } else {
       return {
