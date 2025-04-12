@@ -39,10 +39,7 @@ export default async function OrganizationPage(
   const params = await props.params;
 
   try {
-    console.log("Fetching organization with ID:", params.slug);
     const organization = await getOrganizationBySlugCache(params.slug);
-
-    console.log("Organization:", organization);
 
     if (!organization) {
       redirect("/dashboard");

@@ -119,6 +119,7 @@ export const getOrganizationByIdCache = cache(
 );
 export const getOrganizationBySlugCache = cache(
   async (organizationSlug: string) => {
+    console.log("Fetching organization by slug:", organizationSlug);
     const organization = await prisma.organization.findFirst({
       where: {
         slug: organizationSlug,
