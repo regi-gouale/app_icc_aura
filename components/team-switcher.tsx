@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsUpDown, CommandIcon, Plus } from "lucide-react";
+import { ChevronsUpDown, Plus } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -8,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -25,15 +24,15 @@ export function TeamSwitcher() {
   const { isMobile } = useSidebar();
   const { data: organizations } = authClient.useListOrganizations();
   const { data: activeOrganization } = authClient.useActiveOrganization();
-  const [activeTeam, setActiveTeam] = useState(activeOrganization);
+  const [activeOrg, setActiveOrg] = useState(activeOrganization);
 
-  if (!activeTeam) {
+  if (!activeOrg) {
     if (organizations && organizations.length > 0) {
       console.log(
         "Setting active team to first organization: ",
         organizations[0]
       );
-      setActiveTeam(organizations[0]);
+      setActiveOrg(organizations[0]);
     }
   }
 
@@ -48,24 +47,25 @@ export function TeamSwitcher() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground shadow-sm"
             >
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+              <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-full border bg-transparent text-sm">
                 <span>
-                  {activeTeam?.logo ? (
+                  {activeOrg?.logo ? (
                     <Image
-                      src={activeTeam.logo}
-                      alt={`${activeTeam.name} logo`}
+                      src={activeOrg.logo}
+                      alt={`${activeOrg.name} logo`}
                       className="size-4"
                     />
                   ) : (
-                    <CommandIcon className="size-4" />
+                    <span className="size-4 text-primary">
+                      {activeOrg?.name?.charAt(0).toUpperCase()}
+                    </span>
                   )}
                 </span>
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{activeTeam?.name}</span>
-                {/* <span className="truncate text-xs">{activeTeam.plan}</span> */}
+                <span className="truncate font-medium">{activeOrg?.name}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -82,14 +82,24 @@ export function TeamSwitcher() {
             {organizations.map((organization, index) => (
               <DropdownMenuItem
                 key={organization.name}
-                onClick={() => setActiveTeam(organization)}
+                onClick={() => setActiveOrg(organization)}
                 className="gap-2 p-2"
               >
-                <div className="flex size-6 items-center justify-center rounded-md border">
-                  {/* <team.logo className="size-3.5 shrink-0" /> */}
+                <div className="flex size-6 items-center justify-center rounded-full border">
+                  {organization.logo ? (
+                    <Image
+                      src={organization.logo}
+                      alt={`${organization.name} logo`}
+                      className="size-4"
+                    />
+                  ) : (
+                    <span className="size-4 text-primary text-center align-top">
+                      {organization.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </div>
                 {organization.name}
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                {/* <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut> */}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />

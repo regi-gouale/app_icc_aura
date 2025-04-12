@@ -1,13 +1,15 @@
 "use client";
 
 import {
-  BookOpen,
-  Bot,
+  ChartArea,
+  DollarSignIcon,
   Frame,
   Map,
+  Mic2Icon,
+  NotebookText,
   PieChart,
-  Settings2,
-  SquareTerminal,
+  StickyNote,
+  Users2Icon,
 } from "lucide-react";
 import * as React from "react";
 
@@ -22,7 +24,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
 
 // This is sample data.
 const data = {
@@ -34,113 +35,105 @@ const data = {
 
   navMain: [
     {
-      title: "Playground",
+      title: "Membres",
       url: "#",
-      icon: SquareTerminal,
+      icon: Users2Icon,
       isActive: true,
       items: [
         {
-          title: "History",
+          title: "Tous",
           url: "#",
         },
         {
-          title: "Starred",
+          title: "STAR",
           url: "#",
         },
         {
-          title: "Settings",
+          title: "Responsables",
           url: "#",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Entretiens",
       url: "#",
-      icon: Bot,
+      icon: NotebookText,
       items: [
         {
-          title: "Genesis",
+          title: "Compte-rendus",
           url: "#",
         },
         {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
+          title: "Rendez-vous",
           url: "#",
         },
       ],
     },
     {
-      title: "Documentation",
+      title: "Croissance & Intégration",
       url: "#",
-      icon: BookOpen,
+      icon: ChartArea,
       items: [
         {
-          title: "Introduction",
+          title: "Intégration",
           url: "#",
         },
         {
-          title: "Get Started",
+          title: "Accompagnement & Suivi",
           url: "#",
         },
         {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
+          title: "Discipolat",
           url: "#",
         },
       ],
     },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
+    // {
+    //   title: "Settings",
+    //   url: "#",
+    //   icon: Settings2,
+    //   items: [
+    //     {
+    //       title: "General",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Team",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Billing",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Limits",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
   ],
-  projects: [
+  departments: [
     {
-      name: "Design Engineering",
+      name: "Impact Louange",
       url: "#",
-      icon: Frame,
+      icon: Mic2Icon,
     },
     {
-      name: "Sales & Marketing",
+      name: "Sécretariat Général",
       url: "#",
-      icon: PieChart,
+      icon: StickyNote,
     },
     {
-      name: "Travel",
+      name: "Gestion Financière",
       url: "#",
-      icon: Map,
+      icon: DollarSignIcon,
     },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: organizations } = authClient.useListOrganizations();
-  console.log("organizations", organizations);
+  // const { data: organizations } = authClient.useListOrganizations();
+  // console.log("organizations", organizations);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -149,10 +142,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavProjects projects={data.departments} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

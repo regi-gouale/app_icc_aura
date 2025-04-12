@@ -34,7 +34,9 @@ export function NavMain({
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Bien-aimés</SidebarGroupLabel>
+      <SidebarGroupLabel className="uppercase text-xs *:text-muted-foreground">
+        Structure
+      </SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible

@@ -13,7 +13,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { getSessionCache } from "@/lib/react/cache";
+import { getOrganizationBySlugCache, getSessionCache } from "@/lib/react/cache";
 import { redirect } from "next/navigation";
 
 export default async function OrganizationLayout({
@@ -24,6 +24,14 @@ export default async function OrganizationLayout({
   params: { slug: string };
 }) {
   const session = await getSessionCache();
+
+  const slug = params.slug;
+
+  if (!slug) {
+    redirect("/dashboard");
+  }
+
+  const organization = await getOrganizationBySlugCache(slug);
 
   if (!session) {
     redirect("/auth/signin");
@@ -46,8 +54,8 @@ export default async function OrganizationLayout({
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href={`/orgs/${params.slug}`}>
-                    Organisation
+                  <BreadcrumbLink href={`/orgs/${slug}`}>
+                    {organization?.name}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />

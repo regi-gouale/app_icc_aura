@@ -1,16 +1,16 @@
-import { Button } from "@/components/ui/button";
-import { signOut } from "@/lib/actions/auth.action";
+import CardDashboard from "@/components/card-dashboard";
+import { PrayerGraph } from "@/components/prayer-graph";
 import {
-  getOrganizationBySlugCache,
-  getSessionCache,
-  getUserOrganizationsCache,
-} from "@/lib/react/cache";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { getOrganizationBySlugCache, getSessionCache } from "@/lib/react/cache";
 import { PageParams } from "@/types/next";
+import { NotebookPenIcon, StarIcon, Users2Icon } from "lucide-react";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
-import { InviteMemberButton } from "./invite-member-button";
-import { MembersList } from "./members-list";
-import { OrganizationDetails } from "./organization-details";
 
 export default async function OrganizationPage(
   props: PageParams<{ slug: string }>
@@ -30,7 +30,7 @@ export default async function OrganizationPage(
       redirect("/dashboard");
     }
 
-    const userOrganizations = await getUserOrganizationsCache(session.user.id);
+    // const userOrganizations = await getUserOrganizationsCache(session.user.id);
 
     // Vérifier que l'utilisateur est un membre de l'organisation
     const currentMember = organization.members.find(
@@ -51,23 +51,12 @@ export default async function OrganizationPage(
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold">{organization.name}</h1>
-            {organization.slug && (
-              <p className="text-gray-500">Slug: {organization.slug}</p>
-            )}
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3">
-            {userOrganizations.length > 1 && <div></div>}
-            <form action={signOut}>
-              <Button variant="outline" type="submit">
-                Se déconnecter
-              </Button>
-            </form>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            {/* Affichage des détails de l'organisation */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* <div className="lg:col-span-3">
+
             <Suspense
               fallback={
                 <div className="space-y-4">
@@ -83,7 +72,7 @@ export default async function OrganizationPage(
               />
             </Suspense>
 
-            {/* Liste des membres de l'organisation */}
+
             <div className="bg-white rounded-lg shadow p-6 mt-8">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">
@@ -121,7 +110,7 @@ export default async function OrganizationPage(
           </div>
 
           <div>
-            {/* Panneau latéral avec les statistiques et informations */}
+
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Informations</h2>
               <div className="space-y-4">
@@ -152,14 +141,58 @@ export default async function OrganizationPage(
               </div>
             </div>
 
-            {/* Statistiques ou informations supplémentaires */}
+
             <div className="bg-white rounded-lg shadow p-6 mt-8">
               <h2 className="text-xl font-semibold mb-4">Activité récente</h2>
               <p className="text-gray-500 text-sm">
                 Les statistiques d'activité seront bientôt disponibles.
               </p>
             </div>
-          </div>
+          </div> */}
+
+          <CardDashboard
+            title={"Nombre de membres"}
+            value={1000}
+            description={"+ 5% par rapport au mois dernier"}
+            icon={<Users2Icon className="size-4" />}
+          />
+          <CardDashboard
+            title={"Nombre de STAR"}
+            value={300}
+            description={"+10% par rapport au mois dernier"}
+            icon={<StarIcon className="size-4" />}
+          />
+          <CardDashboard
+            title={"Entretiens ce mois"}
+            value={75}
+            description={"+ 2% par rapport au mois dernier"}
+            icon={<NotebookPenIcon className="size-4" />}
+          />
+          <CardDashboard
+            title={"Mes entretiens"}
+            value={10}
+            description={"Vous avez 2 entretiens à venir."}
+            icon={<NotebookPenIcon className="size-4" />}
+          />
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8 mt-8">
+          <Card className="col-span-4">
+            <CardHeader>
+              <CardTitle>Moyenne participations aux cultes</CardTitle>
+            </CardHeader>
+            <CardContent className="pl-2">
+              <PrayerGraph />
+            </CardContent>
+          </Card>
+          <Card className="col-span-4">
+            <CardHeader>
+              <CardTitle>Compte-rendu récents</CardTitle>
+              <CardDescription>
+                Il y a eu 4567 compte-rendus ce mois.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>{/* <RecentNotes /> */}</CardContent>
+          </Card>
         </div>
       </div>
     );
