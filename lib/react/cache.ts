@@ -117,6 +117,31 @@ export const getOrganizationByIdCache = cache(
     return organization;
   }
 );
+export const getOrganizationBySlugCache = cache(
+  async (organizationSlug: string) => {
+    const organization = await prisma.organization.findFirst({
+      where: {
+        slug: organizationSlug,
+      },
+      include: {
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return organization;
+  }
+);
 
 /**
  * Cache pour les membres d'une organisation

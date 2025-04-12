@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { signOut } from "@/lib/actions/auth.action";
 import {
-  getOrganizationByIdCache,
+  getOrganizationBySlugCache,
   getSessionCache,
   getUserOrganizationsCache,
 } from "@/lib/react/cache";
@@ -28,7 +28,7 @@ import { MembersList } from "./members-list";
 import { OrganizationDetails } from "./organization-details";
 
 export default async function OrganizationPage(
-  props: PageParams<{ id: string }>
+  props: PageParams<{ slug: string }>
 ) {
   const session = await getSessionCache();
 
@@ -39,7 +39,10 @@ export default async function OrganizationPage(
   const params = await props.params;
 
   try {
-    const organization = await getOrganizationByIdCache(params.id);
+    console.log("Fetching organization with ID:", params.slug);
+    const organization = await getOrganizationBySlugCache(params.slug);
+
+    console.log("Organization:", organization);
 
     if (!organization) {
       redirect("/dashboard");
