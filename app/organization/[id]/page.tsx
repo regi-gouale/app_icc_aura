@@ -15,38 +15,37 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { signOut } from "@/lib/actions/auth.action";
-import { auth } from "@/lib/auth";
+import {
+  getOrganizationByIdCache,
+  getSessionCache,
+  getUserOrganizationsCache,
+} from "@/lib/react/cache";
 import { PageParams } from "@/types/next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { InviteMemberButton } from "./invite-member-button";
 import { MembersList } from "./members-list";
 import { OrganizationDetails } from "./organization-details";
-import OrganizationLoading from "./loading";
 
 export default async function OrganizationPage(
   props: PageParams<{ id: string }>
 ) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSessionCache();
 
   if (!session) {
     redirect("/auth/signin");
   }
+
   const params = await props.params;
-  // Récupérer les informations de l'organisation
+
   try {
-    const organization = await auth.api.getFullOrganization({
-      organizationId: params.id,
-      headers: await headers(),
-    });
+    const organization = await getOrganizationByIdCache(params.id);
 
     if (!organization) {
-      // Si l'organisation n'existe pas, rediriger vers le tableau de bord
       redirect("/dashboard");
     }
+
+    const userOrganizations = await getUserOrganizationsCache(session.user.id);
 
     // Vérifier que l'utilisateur est un membre de l'organisation
     const currentMember = organization.members.find(
@@ -54,14 +53,8 @@ export default async function OrganizationPage(
     );
 
     if (!currentMember) {
-      // Si l'utilisateur n'est pas membre, rediriger vers le tableau de bord
       redirect("/dashboard");
     }
-
-    // Récupérer les organisations de l'utilisateur pour la sélection
-    const userOrganizations = await auth.api.listOrganizations({
-      headers: await headers(),
-    });
 
     // Déterminer les permissions de l'utilisateur
     const isOwnerOrAdmin =
