@@ -34,21 +34,14 @@ export type SoulsTableProps = {
 
 export const SoulsTable = ({ souls }: SoulsTableProps) => {
   const { data: session } = authClient.useSession();
-
-  if (!session) {
-    return null;
-  }
-
   const org = authClient.useActiveOrganization();
-  if (!org) {
-    return null;
-  }
-  const slug = org.data?.slug;
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+
+  const slug = org.data?.slug;
 
   const soulsTable = useReactTable({
     data: souls,
@@ -68,6 +61,10 @@ export const SoulsTable = ({ souls }: SoulsTableProps) => {
       rowSelection,
     },
   });
+  // Si aucune session ou organisation n'est disponible, renvoyer null après les hooks
+  if (!session || !org) {
+    return null;
+  }
 
   return (
     <>

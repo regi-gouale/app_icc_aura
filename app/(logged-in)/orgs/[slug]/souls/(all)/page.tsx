@@ -29,8 +29,6 @@ export default async function AllMembersPage(
       lastName: "asc",
     },
   });
-  console.log("allOrganizationsSouls:", allOrganizationsSouls);
-  // const allOrganizationsMembers: Soul[] = [];
 
   return (
     <>
