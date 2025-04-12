@@ -19,9 +19,11 @@ import { auth } from "@/lib/auth";
 import { PageParams } from "@/types/next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { InviteMemberButton } from "./invite-member-button";
 import { MembersList } from "./members-list";
 import { OrganizationDetails } from "./organization-details";
+import OrganizationLoading from "./loading";
 
 export default async function OrganizationPage(
   props: PageParams<{ id: string }>
@@ -118,11 +120,20 @@ export default async function OrganizationPage(
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
                 {/* Affichage des détails de l'organisation */}
-                <OrganizationDetails
-                  organization={organization}
-                  isAdmin={isOwnerOrAdmin}
-                  userId={session.user.id}
-                />
+                <Suspense
+                  fallback={
+                    <div className="space-y-4">
+                      <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-32 w-full bg-gray-200 rounded animate-pulse" />
+                    </div>
+                  }
+                >
+                  <OrganizationDetails
+                    organization={organization}
+                    isAdmin={isOwnerOrAdmin}
+                    userId={session.user.id}
+                  />
+                </Suspense>
 
                 {/* Liste des membres de l'organisation */}
                 <div className="bg-white rounded-lg shadow p-6 mt-8">
@@ -131,15 +142,33 @@ export default async function OrganizationPage(
                       Membres de l'organisation
                     </h2>
                     {isOwnerOrAdmin && (
-                      <InviteMemberButton organizationId={organization.id} />
+                      <Suspense>
+                        <InviteMemberButton organizationId={organization.id} />
+                      </Suspense>
                     )}
                   </div>
-                  <MembersList
-                    members={organization.members}
-                    currentUserId={session.user.id}
-                    currentUserRole={currentMember.role}
-                    organizationId={organization.id}
-                  />
+                  <Suspense
+                    fallback={
+                      <div className="space-y-4">
+                        {[...Array(3)].map((_, i) => (
+                          <div key={i} className="flex items-center space-x-4">
+                            <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse" />
+                            <div className="space-y-2">
+                              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+                              <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    }
+                  >
+                    <MembersList
+                      members={organization.members}
+                      currentUserId={session.user.id}
+                      currentUserRole={currentMember.role}
+                      organizationId={organization.id}
+                    />
+                  </Suspense>
                 </div>
               </div>
 

@@ -3,6 +3,8 @@ import { signOut } from "@/lib/actions/auth.action";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import DashboardLoading from "./loading";
 import { OrganizationManager } from "./organization-manager";
 
 export default async function DashboardPage() {
@@ -47,33 +49,35 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 w-full max-w-4xl">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Tableau de bord</h1>
-        <form action={signOut}>
-          <Button variant="outline" type="submit">
-            Se déconnecter
-          </Button>
-        </form>
-      </div>
+    <Suspense fallback={<DashboardLoading />}>
+      <div className="container mx-auto px-4 py-8 w-full max-w-4xl">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold">Tableau de bord</h1>
+          <form action={signOut}>
+            <Button variant="outline" type="submit">
+              Se déconnecter
+            </Button>
+          </form>
+        </div>
 
-      <p className="text-lg mb-8">
-        Bienvenue sur votre tableau de bord, {userName} !
-      </p>
-
-      <div className="bg-white rounded-lg shadow p-6 mt-8">
-        <h2 className="text-xl font-semibold mb-4">
-          Gestion des organisations
-        </h2>
-        <p className="text-gray-600 mb-6">
-          Vous n'avez pas encore d'organisation.
-          {userRole === "admin"
-            ? " En tant qu'administrateur, vous pouvez créer une nouvelle organisation."
-            : " Vous avez besoin d'un code d'invitation pour rejoindre une organisation existante."}
+        <p className="text-lg mb-8">
+          Bienvenue sur votre tableau de bord, {userName} !
         </p>
 
-        <OrganizationManager userRole={userRole} />
+        <div className="bg-white rounded-lg shadow p-6 mt-8">
+          <h2 className="text-xl font-semibold mb-4">
+            Gestion des organisations
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Vous n'avez pas encore d'organisation.
+            {userRole === "admin"
+              ? " En tant qu'administrateur, vous pouvez créer une nouvelle organisation."
+              : " Vous avez besoin d'un code d'invitation pour rejoindre une organisation existante."}
+          </p>
+
+          <OrganizationManager userRole={userRole} />
+        </div>
       </div>
-    </div>
+    </Suspense>
   );
 }

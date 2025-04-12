@@ -501,3 +501,91 @@ export async function create(data) {
   });
 }
 ```
+
+# Server component
+
+## Context
+
+- Since React 19 and NextJS 13 Server Component can be used.
+- Server Component enable use to make backend query directly on our Component
+- Server Component NEVER run on the client
+
+## Usage
+
+Utilize React 19 with Server Components. Implement Prisma queries and backend logic inside `page` or `layout` files like this:
+
+```tsx
+// Use "async" for server components
+export default async function Page() {
+  // Use "await" for async operations
+  const result = await prisma.user.findMany();
+  return (
+    <div>
+      {result.map((user) => (
+        <p>{user.name}</p>
+      ))}
+    </div>
+  );
+}
+```
+
+You can also implement this logic in every component that is `async`. A Server Components can do backend stuff inside is body like :
+
+- prisma query
+- fs read / write
+- analytics
+- third partie stuff
+
+Some method are avaiable :
+
+```tsx
+import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+
+// Redirect to another page
+redirect("/login");
+
+// Show the `not-found.tsx` file
+notFound();
+```
+
+Some rules about Server Components :
+
+1. Server components are always `async`
+2. Server components can't use hooks
+3. Server Components can't use `document` or `window` because they are only run in backend
+
+# Streameing components
+
+## Context
+
+- Streaming allows you to break down the page's HTML into smaller chunks and progressively send those chunks from the server to the client.
+- This enables parts of the page to be displayed sooner, without waiting for all the data to load before any UI can be rendered.
+- Streaming works well with React's component model because each component can be considered a chunk. Components that have higher priority (e.g. product information) or that don't rely on data can be sent first (e.g. layout), and React can start hydration earlier. Components that have lower priority (e.g. reviews, related products) can be sent in the same server request after their data has been fetched.
+
+## Example
+
+`<Suspense>` works by wrapping a component that performs an asynchronous action (e.g. fetch data), showing fallback UI (e.g. skeleton, spinner) while it's happening, and then swapping in your component once the action completes.
+
+```tsx
+import { Suspense } from "react";
+import { PostFeed, Weather } from "./Components";
+
+export default function Posts() {
+  return (
+    <section>
+      <Suspense fallback={<p>Loading feed...</p>}>
+        <PostFeed />
+      </Suspense>
+      <Suspense fallback={<p>Loading weather...</p>}>
+        <Weather />
+      </Suspense>
+    </section>
+  );
+}
+```
+
+- PostFeed is a [17-server-components.mdc](mdc:.cursor/rules/17-server-components.mdc) that fetch data
+- Weather is a [17-server-components.mdc](mdc:.cursor/rules/17-server-components.mdc) that fetch data
+
+You can use [skeleton.tsx](mdc:src/components/ui/skeleton.tsx) in `fallback` to have a better UI/UX on the application.
