@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "SoulStatus" AS ENUM ('MEMBER', 'AIDE', 'ASSISTANT_PASTOR', 'PASTOR', 'MINISTER', 'RESPONSIBLE', 'STAR');
+
+-- AlterTable
+ALTER TABLE "soul" ADD COLUMN     "status" "SoulStatus" NOT NULL DEFAULT 'MEMBER';

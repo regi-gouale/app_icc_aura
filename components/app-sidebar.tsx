@@ -3,11 +3,8 @@
 import {
   ChartArea,
   DollarSignIcon,
-  Frame,
-  Map,
   Mic2Icon,
   NotebookText,
-  PieChart,
   StickyNote,
   Users2Icon,
 } from "lucide-react";
@@ -27,30 +24,30 @@ import {
 
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+  // user: {
+  //   name: "shadcn",
+  //   email: "m@example.com",
+  //   avatar: "/avatars/shadcn.jpg",
+  // },
 
   navMain: [
     {
       title: "Membres",
-      url: "#",
+      url: "/souls",
       icon: Users2Icon,
       isActive: true,
       items: [
         {
           title: "Tous",
-          url: "#",
+          url: "/souls",
         },
         {
           title: "STAR",
-          url: "#",
+          url: "/souls/star",
         },
         {
           title: "Responsables",
-          url: "#",
+          url: "/souls/responsibles",
         },
       ],
     },
@@ -131,7 +128,21 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  user,
+  organization,
+  ...props
+}: {
+  user?: {
+    name: string;
+    email: string;
+    avatar: string;
+  };
+  organization?: {
+    name: string;
+    slug: string;
+  };
+} & React.ComponentProps<typeof Sidebar> & { className?: string }) {
   // const { data: organizations } = authClient.useListOrganizations();
   // console.log("organizations", organizations);
 
@@ -141,7 +152,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={data.navMain} slug={organization?.slug} />
         <NavProjects projects={data.departments} />
       </SidebarContent>
       <SidebarFooter>

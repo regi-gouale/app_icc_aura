@@ -20,6 +20,7 @@ import {
 
 export function NavMain({
   items,
+  slug,
 }: {
   items: {
     title: string;
@@ -31,7 +32,14 @@ export function NavMain({
       url: string;
     }[];
   }[];
+  slug?: string;
 }) {
+  if (!items || items.length === 0) {
+    return null;
+  }
+  if (!slug) {
+    return null;
+  }
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="uppercase text-xs *:text-muted-foreground">
@@ -58,7 +66,7 @@ export function NavMain({
                   {item.items?.map((subItem) => (
                     <SidebarMenuSubItem key={subItem.title}>
                       <SidebarMenuSubButton asChild>
-                        <a href={subItem.url}>
+                        <a href={`/orgs/${slug}/${subItem.url}`}>
                           <span>{subItem.title}</span>
                         </a>
                       </SidebarMenuSubButton>

@@ -26,21 +26,17 @@ export default async function DashboardPage() {
     const activeOrganization = userOrganizations.find(
       (org) => org.id === activeOrganizationId
     );
+
     if (activeOrganization) {
-      // Rediriger vers l'organisation active
       redirect(`/orgs/${activeOrganization.slug}`);
-    } else {
-      // Si l'organisation active n'est pas trouvée dans la liste des organisations de l'utilisateur
-      // on redirige vers le tableau de bord
-      // ou vers une page d'erreur
-      redirect(`/dashboard`);
     }
   }
 
   // Si l'utilisateur a des organisations mais pas d'organisation active
   // on définit la première organisation comme active et on redirige
   if (userOrganizations && userOrganizations.length > 0) {
-    redirect(`/orgs/${userOrganizations[0].slug}`);
+    const activeOrganization = userOrganizations[0];
+    redirect(`/orgs/${activeOrganization.slug}`);
   }
 
   return (
